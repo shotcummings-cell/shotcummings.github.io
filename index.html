@@ -111,10 +111,15 @@
       "another.server.net"
     ];
 
+    // Use a public CORS proxy to avoid cross-origin issues
+    const corsProxy = "https://api.allorigins.win/get?url=";
+
     async function fetchStatus(ip) {
       try {
-        const res = await fetch(`https://topeaglerservers.com/api/status/mc.arch.lol`);
-        const data = await res.json();
+        const res = await fetch(`${corsProxy}${encodeURIComponent(`https://topeaglerservers.com/api/status/mc.arch.lol`)}`);
+        const wrapped = await res.json();
+        const data = JSON.parse(wrapped.contents);
+
         return {
           ip,
           online: data.online ?? false,
