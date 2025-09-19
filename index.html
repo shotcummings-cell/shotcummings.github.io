@@ -116,7 +116,7 @@
 
     async function fetchStatus(ip) {
       try {
-        const res = await fetch(`${corsProxy}${encodeURIComponent(`https://topeaglerservers.com/api/status/mc.arch.lol`)}`);
+        const res = await fetch(`${corsProxy}${encodeURIComponent(`https://topeaglerservers.com/api/status/${ip}`)}`);
         const wrapped = await res.json();
         const data = JSON.parse(wrapped.contents);
 
