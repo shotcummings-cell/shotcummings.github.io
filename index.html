@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eaglercraft Server List</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(135deg, #330000, #660000, #990000);
+      color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 20px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #ff4444;
+      text-shadow: 0 0 10px #ff4444;
+    }
+
+    #controls {
+      text-align: center;
+      margin: 20px;
+    }
+
+    input[type="text"] {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      width: 250px;
+      font-size: 1rem;
+    }
+
+    #servers {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .server {
+      background: rgba(40, 0, 0, 0.8);
+      border: 1px solid #660000;
+      border-radius: 12px;
+      padding: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .server:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+    }
+
+    .server h2 {
+      margin: 0 0 10px;
+      font-size: 1.3rem;
+      color: #ff4444;
+    }
+
+    .online {
+      color: #ff6666;
+      font-weight: bold;
+    }
+
+    .offline {
+      color: #990000;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    footer a {
+      color: #ff4444;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌐 Eaglercraft Server List</h1>
+  </header>
+
+  <div id="controls">
+    <input type="text" id="search" placeholder="Search servers...">
+  </div>
+
+  <div id="servers"></div>
+
+  <footer>
+    <p>Powered by <a href="https://topeaglerservers.com" target="_blank">TopEaglerServers</a></p>
+  </footer>
+
+  <script>
+    const serverIPs = [
+      "mc.arch.lol",
+      "play.example.com",
+      "another.server.net"
+    ];
+
+    async function fetchStatus(ip) {
+      try {
+        const res = await fetch(`https://topeaglerservers.com/api/status/${ip}`);
+        const data = await res.json();
+        return {
+          ip,
+          online: data.online ?? false,
+          players: data.players?.online ?? data.players ?? 0,
+          motd: data.motd ?? "",
+          version: data.version ?? ""
+        };
+      } catch (e) {
+        return { ip, online: false, players: 0, motd: "Error", version: "" };
+      }
+    }
+
+    async function updateServers() {
+      const container = document.getElementById("servers");
+      container.innerHTML = "";
+
+      const search = document.getElementById("search").value.toLowerCase();
+
+      for (const ip of serverIPs) {
+        const status = await fetchStatus(ip);
+        if (!ip.toLowerCase().includes(search) && !status.motd.toLowerCase().includes(search)) continue;
+
+        const div = document.createElement("div");
+        div.className = "server";
+        div.innerHTML = `
+          <h2>${status.ip}</h2>
+          <p>Status: <span class="${status.online ? "online" : "offline"}">${status.online ? "Online" : "Offline"}</span></p>
+          <p>Players: ${status.players}</p>
+          <p>Version: ${status.version}</p>
+          <p>MOTD: ${status.motd}</p>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    document.getElementById("search").addEventListener("input", updateServers);
+
+    // Initial load and refresh every 60s
+    updateServers();
+    setInterval(updateServers, 60000);
+  </script>
+</body>
+</html>
